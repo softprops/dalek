@@ -19,7 +19,6 @@ abstract class Adb(host: String, port: Int) {
   def send[T](cmd: String)(f: Boolean => T) = {
     val req = "%04x%s" format(cmd.size, cmd)
     write(ByteBuffer.wrap(req.getBytes))
-    read(ByteBuffer.wrap(Array.ofDim[Byte](4)))
     f(ok)
   }
 
