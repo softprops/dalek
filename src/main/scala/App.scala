@@ -20,16 +20,12 @@ object App {
           case _ => {
             case Open(s) =>
               deviceFrames.takeWhile(s.channel.isConnected) { frame =>
+                val path = java.util.UUID.randomUUID.toString
+                frames.put(path, frame.data)
+                s.send(path)
                 sched.schedule(new Runnable {
-                  def run = {
-                    val path = java.util.UUID.randomUUID.toString
-                    frames.put(path, frame.data)
-                    s.send(path)
-                    sched.schedule(new Runnable {
-                      def run = frames.remove(path)
-                    }, 3, TimeUnit.SECONDS)
-                  }
-                }, 0, TimeUnit.MILLISECONDS)
+                  def run = frames.remove(path)
+                }, 3, TimeUnit.SECONDS)
               }
           }
          }).onPass(_.sendUpstream(_))
