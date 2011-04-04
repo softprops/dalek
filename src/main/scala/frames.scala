@@ -1,5 +1,6 @@
 case class Frames(host: String, port: Int) extends Adb(host, port) {
   import java.nio.{ByteBuffer, ByteOrder}
+  import com.android.ddmlib.RawImage
 
   def takeWhile[T](cond: => Boolean)(f: RawImage => T) =
     while(cond) {
@@ -25,6 +26,7 @@ case class Frames(host: String, port: Int) extends Adb(host, port) {
           val data = Array.ofDim[Byte](img.size)
           val bb = ByteBuffer.wrap(data)
           read(bb)
+          println("data size %s" format data.size)
           img.data = data
           img
           f(img)

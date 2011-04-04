@@ -24,17 +24,23 @@ object App {
                 frames.put(path, frame.data)
                 s.send(path)
                 sched.schedule(new Runnable {
-                  def run = frames.remove(path)
-                }, 3, TimeUnit.SECONDS)
+                  def run = {
+                    //println("removing path %s" format path)
+                    //frames.remove(path)
+                  }
+                }, 6, TimeUnit.SECONDS)
               }
           }
          }).onPass(_.sendUpstream(_))
        )
        .handler(new ChunkedWriteHandler())
        .handler(unfiltered.netty.channel.Planify({
-          case r @ Path(path) => frames.get(path) match {
-            case null => NotFound
+          case r @ Path(path) => frames.get(path.drop(1)) match {
+            case null =>
+              println("no entry for path %s" format path.drop(1))
+              NotFound
             case f: Array[Byte] =>
+              println("attempting to write data for path %s : data size %s" format(path.drop(1), f.size))
               // todo: make sure content type is correct and set
               r.underlying.
                 context.getChannel.write(

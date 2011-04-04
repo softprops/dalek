@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+ <head>
+   <script type="text/javascript" src="./jquery.min.js"></script>
+
+ </head>
+ <body>
+   <canvas id="dal" width="500" height="800"></canvas>
+   <script type="text/javascript">
+     $(function($){
+         var canvas = document.getElementById("dal");
+         var context = canvas.getContext("2d");
+         var dalek = new WebSocket("ws://localhost:8080");
+         dalek.onconnect = function(e) { console.log(e); };
+         dalek.onmessage = function(e) {
+             console.log(e);
+             var i = new Image();
+             i.src = "http://localhost:8080/" + e.data;
+             i.onload = function() {
+                 alert("loaded!")
+                 context.drawImage(i, 0, 0);
+             };
+         };
+     });
+   </script>
+ </body>
+</html>

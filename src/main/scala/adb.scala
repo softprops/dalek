@@ -13,11 +13,12 @@ abstract class Adb(host: String, port: Int) {
    }
 
   send("host:transport-usb") { ok =>
-    if(!ok) error("no connection detected")
+    if(!ok) error("no usb connection detected")
   }
 
   def send[T](cmd: String)(f: Boolean => T) = {
-    val req = "%04x%s" format(cmd.size, cmd)
+    println("sending: %s" format cmd)
+    val req = "%04X%s" format(cmd.size, cmd)
     write(ByteBuffer.wrap(req.getBytes))
     f(ok)
   }
@@ -26,8 +27,8 @@ abstract class Adb(host: String, port: Int) {
     val b = ByteBuffer.wrap(Array.ofDim[Byte](4))
     read(b)
     b.array() match {
-      case Array('0', _, _, 'y') => true
-      case _ => false
+      case Array('O', 'K', 'A', 'Y') => true
+      case e => false
     }
   }
 
@@ -36,6 +37,7 @@ abstract class Adb(host: String, port: Int) {
       chan.write(b) match {
         case 0 => Thread.sleep(4)
         case n if(n < 0) => error("eof")
+        case ok => ()
       }
     }
 
@@ -44,6 +46,7 @@ abstract class Adb(host: String, port: Int) {
       chan.read(b) match {
         case 0 => Thread.sleep(4)
         case n if(n < 0) => error("eof")
+        case ok => ()
       }
     }
 }
